@@ -1,16 +1,38 @@
-import { Injectable, UnauthorizedException, NotFoundException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, NotFoundException, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import * as nodemailer from 'nodemailer';
 import { User } from '../users/user.entity';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
+  private readonly transporter: nodemailer.Transporter;
+
   constructor(
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
-  ) {}
+    private configService: ConfigService,
+  ) {
+    const emailUser = this.configService.get<string>('EMAIL_USER');
+    const emailPassword = this.configService.get<string>('EMAIL_PASSWORD');
+
+    if (!emailUser || !emailPassword) {
+      throw new Error('Email configuration is missing. Please check your .env file.');
+    }
+
+    this.transporter = nodemailer.createTransport({
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true,
+      auth: {
+        user: emailUser,
+        pass: emailPassword,
+      },
+      tls: { rejectUnauthorized: false },
+    });
+  }
 
   async forgotPassword(email: string): Promise<{ message: string }> {
     const user = await this.userRepo.findOne({ where: { email } });
@@ -20,8 +42,13 @@ export class AuthService {
     user.resetToken = token;
     await this.userRepo.save(user);
 
-    await this.sendResetEmail(email, token);
-    return { message: 'Password reset link sent to your email.' };
+    try {
+      await this.sendResetEmail(email, token);
+      return { message: 'Password reset link sent to your email.' };
+    } catch (error) {
+      console.error('Error sending reset email:', error);
+      throw new InternalServerErrorException('Failed to send reset email. Please try again later.');
+    }
   }
 
   async resetPassword(email: string, token: string, newPassword: string): Promise<{ message: string }> {
@@ -67,28 +94,27 @@ export class AuthService {
   }
 
   private async sendResetEmail(to: string, token: string): Promise<void> {
-    const resetLink = `http://localhost:4200/reset-password?token=${token}&email=${to}`;
+    const frontendUrl = this.configService.get<string>('FRONTEND_URL');
+    if (!frontendUrl) {
+      throw new Error('FRONTEND_URL is not configured in environment variables');
+    }
 
-    const transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 465,
-      secure: true,
-      auth: {
-        user: 'oniyonkuru233@gmail.com',  // I replace with this  email when I get The Permission "info@mininfra.gov.rw
-        pass: 'zrqj rbsf kpmk cuuw',
-      },
-      tls: { rejectUnauthorized: false },
-    });
+    const resetLink = `${frontendUrl}/reset-password?token=${token}&email=${to}`;
+    const emailUser = this.configService.get<string>('EMAIL_USER');
 
-    await transporter.sendMail({
-      from: 'oniyonkuru233@gmail.com',
+    if (!emailUser) {
+      throw new Error('EMAIL_USER is not configured in environment variables');
+    }
+
+    await this.transporter.sendMail({
+      from: emailUser,
       to,
       subject: 'Password Reset Request',
       html: `
         <p>Hello,</p>
         <p>You requested a password reset. Click the link below:</p>
         <a href="${resetLink}">${resetLink}</a>
-        <p>If you didn’t request this, ignore this email.</p>
+        <p>If you didn't request this, ignore this email.</p>
       `,
     });
   }
