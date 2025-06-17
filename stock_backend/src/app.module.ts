@@ -9,8 +9,6 @@ import { Asset } from './asset/asset.entity';
 import { InventoryModule } from './inventory/inventory.module';
 import { ReportsModule } from './reports/reports.module';
 
-
-
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }), // Load .env globally
@@ -19,11 +17,11 @@ import { ReportsModule } from './reports/reports.module';
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
         type: 'mysql',
-        host: config.get<string>('DB_HOST', 'localhost'),
-        port: config.get<number>('DB_PORT', 3306),
-        username: config.get<string>('DB_USERNAME', 'your_mysql_user'),
-        password: config.get<string>('DB_PASSWORD', 'your_mysql_password'),
-        database: config.get<string>('DB_NAME', 'your_database_name'),
+        host: config.get<string>('DATABASE_HOST', 'localhost'),
+        port: config.get<number>('DATABASE_PORT', 3306),
+        username: config.get<string>('DATABASE_USER', 'root'),
+        password: config.get<string>('DATABASE_PASSWORD', 'Da1wi2d$'),
+        database: config.get<string>('DATABASE_NAME', 'mininfra'),
         entities: [Asset], // Add specific entities
         autoLoadEntities: true, // Automatically load all entities
         synchronize: false, // Set true only in development
