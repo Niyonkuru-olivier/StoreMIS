@@ -16,6 +16,9 @@ RUN npm install
 # Copy the rest of the application
 COPY . .
 
+# Create a script to generate environment.js
+RUN echo "window.env = { API_URL: '${API_URL}' };" > src/environment.js
+
 # Build the application with production configuration
 RUN npm run build -- --configuration production
 

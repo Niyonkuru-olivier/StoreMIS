@@ -1,4 +1,10 @@
+declare const process: {
+  env: {
+    [key: string]: string;
+  };
+};
+
 export const environment = {
   production: false,
-  apiUrl: process.env['API_URL'] || 'http://localhost:3001' // Use environment variable or fallback to localhost
+  apiUrl: (window as any).env?.API_URL || 'http://localhost:3001'
 };
