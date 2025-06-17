@@ -20,38 +20,24 @@ export class Asset {
   @Column()
   condition: 'Fair' | 'Good' | 'Very Good';
 
-  @Column({ name: 'qty_in', type: 'int' })
+  @Column({ type: 'int', name: 'qty_in' })
   qty_in: number;
 
-  @Column({ name: 'qty_out', type: 'int', default: 0 })
+  @Column({ type: 'int', name: 'qty_out', default: 0 })
   qty_out: number;
 
-  @Column({
-    type: 'int',
-    generated: 'STORED',
-    asExpression: 'qty_in - qty_out'
-  })
-  balance_qty: number;
-
-  @Column({ 
-    name: 'unit_price', 
-    type: 'decimal', 
-    precision: 10, 
-    scale: 2,
-    default: 0.00
-  })
+  @Column({ type: 'decimal', name: 'unit_price', precision: 10, scale: 2, default: 0.00 })
   unit_price: number;
 
-  @Column({
-    name: 'total_price',
-    type: 'decimal',
-    precision: 10,
-    scale: 2,
-    generated: 'STORED',
-    asExpression: 'balance_qty * unit_price'
-  })
-  readonly total_price: number;
-
-  @Column({ type: 'int', default: 5 }) // 👈 NEW FIELD
+  @Column({ type: 'int', default: 5 })
   threshold: number;
+
+  // Computed properties for PostgreSQL compatibility
+  get balance_qty(): number {
+    return (this.qty_in ?? 0) - (this.qty_out ?? 0);
+  }
+
+  get total_price(): number {
+    return this.balance_qty * Number(this.unit_price ?? 0);
+  }
 }
