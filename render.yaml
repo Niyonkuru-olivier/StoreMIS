@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: storemis
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: standard
+    envVars:
+      - key: DATABASE_HOST
+        value: your-database-host
+      - key: DATABASE_PORT
+        value: "3306"
+      - key: DATABASE_USER
+        value: your-database-user
+      - key: DATABASE_PASSWORD
+        value: your-database-password
+      - key: DATABASE_NAME
+        value: mininfra
+      - key: NODE_ENV
+        value: production 
