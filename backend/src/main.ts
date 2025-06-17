@@ -7,6 +7,6 @@ async function bootstrap() {
   dotenv.config();
   const app = await NestFactory.create(AppModule);
   app.enableCors(); // To allow frontend requests
-  await app.listen(3001);
+  await app.listen(3002);
 }
 bootstrap();
