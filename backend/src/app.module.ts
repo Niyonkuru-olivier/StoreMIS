@@ -16,11 +16,11 @@ import { User } from './users/user.entity';
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
         type: 'postgres',
-        host: config.get<string>('DATABASE_HOST'),
-        port: config.get<number>('DATABASE_PORT', 5432),
-        username: config.get<string>('DATABASE_USER'),
-        password: config.get<string>('DATABASE_PASSWORD'),
-        database: config.get<string>('DATABASE_NAME'),
+        host: 'dpg-d18k3semcj7s73a2sbi0-a',
+        port: 5432,
+        username: 'storemis_user',
+        password: 'Zo38OXrwgqJWDqhfJT6xDOH9VKsFBIPP',
+        database: 'mininfra',
         entities: [User],
         synchronize: true,
         ssl: {
