@@ -20,7 +20,7 @@ RUN npm install --save-dev @types/node
 COPY . .
 
 # Create a script to generate environment.js
-RUN echo "window.env = { API_URL: '${API_URL}' };" > src/environment.js
+RUN echo "window.env = { API_URL_BACKEND1: '${API_URL_BACKEND1}', API_URL_BACKEND2: '${API_URL_BACKEND2}' };" > src/environment.js
 
 # Build the application with production configuration
 RUN npm run build -- --configuration production
@@ -33,6 +33,12 @@ COPY --from=build /app/dist/stock /usr/share/nginx/html
 
 # Copy nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Remove default nginx static assets
+RUN rm -rf /usr/share/nginx/html/*
+
+# Copy static assets from builder stage
+COPY --from=build /app/dist/stock /usr/share/nginx/html
 
 # Expose port 80
 EXPOSE 80
