@@ -1,19 +1,28 @@
 services:
   - type: web
-    name: storemis
+    name: storemis-frontend
     env: docker
-    dockerfilePath: ./Dockerfile
+    dockerfilePath: ./stock_frontend/Dockerfile
     plan: standard
     envVars:
-      - key: DATABASE_HOST
-        value: your-database-host
-      - key: DATABASE_PORT
-        value: "3306"
-      - key: DATABASE_USER
-        value: your-database-user
-      - key: DATABASE_PASSWORD
-        value: your-database-password
-      - key: DATABASE_NAME
-        value: mininfra
+      - key: API_URL
+        value: https://storemis-backend.onrender.com
       - key: NODE_ENV
-        value: production 
+        value: production
+
+  - type: web
+    name: storemis-backend
+    env: docker
+    dockerfilePath: ./stock_backend/Dockerfile
+    plan: standard
+    envVars:
+      - key: DATABASE_URL
+        value: postgres://storemis_user:Zo38OXrwgqJWDqhfJT6xDOH9VKsFBIPP@dpg-d18k3semcj7s73a2sbi0-a:5432/mininfra
+      - key: EMAIL_USER
+        value: your_gmail_address
+      - key: EMAIL_PASSWORD
+        value: your_app_specific_password
+      - key: NODE_ENV
+        value: production
+      - key: CORS_ORIGIN
+        value: https://storemis-frontend.onrender.com 

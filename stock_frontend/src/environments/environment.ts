@@ -1,5 +1,4 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:3001' // your NestJS base URL
-  
+  apiUrl: process.env['API_URL'] || 'http://localhost:3001' // Use environment variable or fallback to localhost
 };
