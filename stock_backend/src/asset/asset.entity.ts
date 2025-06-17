@@ -28,10 +28,8 @@ export class Asset {
 
   @Column({
     type: 'int',
-    asExpression: 'qty_in - qty_out',
-    generatedType: 'STORED',
-    insert: false,
-    update: false
+    generated: 'STORED',
+    asExpression: 'qty_in - qty_out'
   })
   balance_qty: number;
 
@@ -49,10 +47,8 @@ export class Asset {
     type: 'decimal',
     precision: 10,
     scale: 2,
-    asExpression: 'balance_qty * unit_price',
-    generatedType: 'STORED',
-    insert: false,
-    update: false
+    generated: 'STORED',
+    asExpression: 'balance_qty * unit_price'
   })
   readonly total_price: number;
 
