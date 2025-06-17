@@ -1,5 +1,5 @@
-# Use Node.js as the base image
-FROM node:18-alpine
+# Build stage
+FROM node:18-alpine as build
 
 # Set working directory
 WORKDIR /app
@@ -25,11 +25,17 @@ RUN echo "window.env = { API_URL: '${API_URL}' };" > src/environment.js
 # Build the application with production configuration
 RUN npm run build -- --configuration production
 
-# Install serve to run the application
-RUN npm install -g serve
+# Production stage
+FROM nginx:alpine
+
+# Copy the built application from build stage
+COPY --from=build /app/dist/stock /usr/share/nginx/html
+
+# Copy nginx configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Expose port 80
 EXPOSE 80
 
-# Start the application with proper configuration for Angular routing
-CMD ["serve", "-s", "dist/stock", "-l", "80", "--single", "--no-clipboard", "--no-request-logging"] 
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"] 
