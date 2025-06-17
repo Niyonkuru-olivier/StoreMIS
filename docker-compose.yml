@@ -1,94 +1,37 @@
-version: '3.8'
-
 services:
-  # Frontend service
+  backend:
+    build: 
+      context: ./stock_backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/stock_db
+      - SECRET_KEY=your-secret-key-here
+    depends_on:
+      - db
+
   frontend:
     build:
       context: ./stock_frontend
       dockerfile: Dockerfile
     ports:
-      - "80:80"
+      - "4200:4200"
+    environment:
+      - NODE_ENV=development
     depends_on:
       - backend
-      - stock_backend
-    networks:
-      - app-network
-    restart: unless-stopped
 
-  # Stock Backend service
-  stock_backend:
-    build:
-      context: ./stock_backend
-      dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
-    depends_on:
-      mysql:
-        condition: service_healthy
+  db:
+    image: postgres:15
     environment:
-      - DATABASE_HOST=mysql
-      - DATABASE_PORT=3306
-      - DATABASE_USER=root
-      - DATABASE_PASSWORD=Da1wi2d$
-      - DATABASE_NAME=mininfra
-      - NODE_ENV=production
-    networks:
-      - app-network
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "wget", "--spider", "http://localhost:3000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # Main Backend service
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+      - POSTGRES_DB=stock_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
     ports:
-      - "3001:3000"
-    depends_on:
-      mysql:
-        condition: service_healthy
-    environment:
-      - DATABASE_HOST=mysql
-      - DATABASE_PORT=3306
-      - DATABASE_USER=root
-      - DATABASE_PASSWORD=Da1wi2d$
-      - DATABASE_NAME=mininfra
-      - NODE_ENV=production
-    networks:
-      - app-network
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "wget", "--spider", "http://localhost:3000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # MySQL service
-  mysql:
-    image: mysql:8.0
-    ports:
-      - "3306:3306"
-    environment:
-      - MYSQL_ROOT_PASSWORD=Da1wi2d$
-      - MYSQL_DATABASE=mininfra
+      - "5432:5432"
     volumes:
-      - mysql_data:/var/lib/mysql
-    networks:
-      - app-network
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-networks:
-  app-network:
-    driver: bridge
+      - postgres_data:/var/lib/postgresql/data
 
 volumes:
-  mysql_data: 
+  postgres_data: 
