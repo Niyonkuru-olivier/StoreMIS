@@ -31,5 +31,5 @@ RUN npm install -g serve
 # Expose port 80
 EXPOSE 80
 
-# Start the application
-CMD ["serve", "-s", "dist/stock", "-l", "80"] 
+# Start the application with proper configuration for Angular routing
+CMD ["serve", "-s", "dist/stock", "-l", "80", "--single", "--no-clipboard", "--no-request-logging"] 
