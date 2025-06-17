@@ -15,14 +15,17 @@ import { User } from './users/user.entity';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
-        type: 'mysql',
-        host: config.get<string>('DATABASE_HOST', 'localhost'),
-        port: config.get<number>('DATABASE_PORT', 3306),
-        username: config.get<string>('DATABASE_USER', 'root'),
-        password: config.get<string>('DATABASE_PASSWORD', 'Da1wi2d$'),
-        database: config.get<string>('DATABASE_NAME', 'mininfra'),
+        type: 'postgres',
+        host: config.get<string>('DATABASE_HOST'),
+        port: config.get<number>('DATABASE_PORT', 5432),
+        username: config.get<string>('DATABASE_USER'),
+        password: config.get<string>('DATABASE_PASSWORD'),
+        database: config.get<string>('DATABASE_NAME'),
         entities: [User],
-        synchronize: false,
+        synchronize: true,
+        ssl: {
+          rejectUnauthorized: false
+        }
       }),
     }),
     AuthModule,
